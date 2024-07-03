@@ -14,8 +14,7 @@
     </padding>
     <HBox spacing="10">
         <Button onAction="#addTodo" style="-fx-background-color: #0f52ba; -fx-border-color: #090e19; -fx-border-width: 1px; -fx-text-fill: white;" text="추가" />
-        <Button onAction="#completeTodo" style="-fx-background-color: #0f52ba; -fx-border-color: #090e19; -fx-border-width: 1px; -fx-text-fill: white;" text="완료 체크" />
-        <Button onAction="#incompleteTodo" style="-fx-background-color: #0f52ba; -fx-border-color: #090e19; -fx-border-width: 1px; -fx-text-fill: white;" text="미완료 체크" />
+        <Button onAction="#completeTodo" style="-fx-background-color: #0f52ba; -fx-border-color: #090e19; -fx-border-width: 1px; -fx-text-fill: white;" text="완료/미완료 체크" />
         <Button onAction="#updateTodo" style="-fx-background-color: #0f52ba; -fx-border-color: #090e19; -fx-border-width: 1px; -fx-text-fill: white;" text="수정" />
         <Button onAction="#deleteTodo" style="-fx-background-color: #0f52ba; -fx-border-color: #090e19; -fx-border-width: 1px; -fx-text-fill: white;" text="삭제" />
     </HBox>

@@ -78,25 +78,16 @@ public class TodoListController {
         });
     }
 
-    @FXML
+        @FXML
     private void completeTodo() {
-        Todo selectedTodo = todoListView.getSelectionModel().getSelectedItem();
-        if (selectedTodo != null) {
-            selectedTodo.setCompleted(true);
-            refreshTodoList();
-            todoListCommand.saveTodosToFile();
+            Todo selectedTodo = todoListView.getSelectionModel().getSelectedItem();
+            if (selectedTodo != null) {
+                selectedTodo.setCompleted(!selectedTodo.isCompleted());
+                refreshTodoList();
+                todoListCommand.saveTodosToFile();
         }
     }
 
-    @FXML
-    private void incompleteTodo() {
-        Todo selectedTodo = todoListView.getSelectionModel().getSelectedItem();
-        if (selectedTodo != null) {
-            selectedTodo.setCompleted(false);
-            refreshTodoList();
-            todoListCommand.saveTodosToFile();
-        }
-    }
     @FXML
     private void updateTodo() {
         Todo selectedTodo = todoListView.getSelectionModel().getSelectedItem();
