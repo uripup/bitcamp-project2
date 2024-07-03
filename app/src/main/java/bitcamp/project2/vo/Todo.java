@@ -1,4 +1,4 @@
-package vo;
+package bitcamp.project2.vo;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -81,7 +81,6 @@ public class Todo implements Serializable {
         this.completed = completed;
     }
 
-    // toString 메소드 재정의
     @Override
     public String toString() {
         String status = completed ? "[완료]" : "[미완료]";
