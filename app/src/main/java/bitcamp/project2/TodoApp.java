@@ -12,7 +12,7 @@ public class TodoApp extends Application {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/TodoList.fxml"));
         primaryStage.setTitle("Todo List");
-        primaryStage.setScene(new Scene(root, 600, 400));
+        primaryStage.setScene(new Scene(root, 380, 400));
         primaryStage.show();
     }
 

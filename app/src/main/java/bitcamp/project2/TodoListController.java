@@ -34,6 +34,11 @@ public class TodoListController {
         filterComboBox.setValue("모두");
         filterComboBox.setOnAction(event -> filterTodos());
 
+        todoListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                showTodoDetails(todoListView.getSelectionModel().getSelectedItem());
+            }
+        });
         refreshTodoList();
     }
 
@@ -169,5 +174,27 @@ public class TodoListController {
     private void refreshTodoList() {
         todoObservableList.clear();
         todoObservableList.addAll(todoListCommand.getTodos());
+    }
+
+    private void showTodoDetails(Todo todo) {
+        if (todo != null) {
+            Dialog<Void> dialog = new Dialog<>();
+            dialog.setTitle("Todo 상세 정보");
+
+            DialogPane dialogPane = dialog.getDialogPane();
+            dialogPane.getButtonTypes().add(ButtonType.CLOSE);
+
+            VBox content = new VBox(10);
+            content.getChildren().addAll(
+                    new Label("제목: " + todo.getTitle()),
+                    new Label("시작일: " + todo.getStartDate()),
+                    new Label("마감일: " + todo.getEndDate()),
+                    new Label("태그: " + String.join(", ", todo.getTags())),
+                    new Label("상태: " + (todo.isCompleted() ? "완료" : "미완료"))
+            );
+
+            dialogPane.setContent(content);
+            dialog.showAndWait();
+        }
     }
 }
