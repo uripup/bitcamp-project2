@@ -1,8 +1,15 @@
 package bitcamp.project2.vo;
 
 import java.io.Serializable;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.HashSet;
+import javafx.collections.FXCollections;
+
+import javafx.beans.property.*;
 
 public class Todo implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -15,12 +22,18 @@ public class Todo implements Serializable {
     private Set<String> tags;
     private boolean completed;
 
+    private transient StringProperty titleProperty;
+    private transient ObjectProperty<LocalDate> startDateProperty;
+    private transient ObjectProperty<LocalDate> endDateProperty;
+    private transient SetProperty<String> tagsProperty;
+    private transient BooleanProperty completedProperty;
+
     public Todo(int no, String title, LocalDate startDate, LocalDate endDate, Set<String> tags) {
         this.no = no;
         this.title = title;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.tags = tags;
+        this.tags = new HashSet<>(tags);
         this.completed = false;
     }
 
@@ -32,7 +45,6 @@ public class Todo implements Serializable {
         Todo.seqNo = seqNo;
     }
 
-    // Getter 및 Setter 메소드들
     public int getNo() {
         return no;
     }
@@ -47,6 +59,16 @@ public class Todo implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+        if (titleProperty != null) {
+            titleProperty.set(title);
+        }
+    }
+
+    public StringProperty titleProperty() {
+        if (titleProperty == null) {
+            titleProperty = new SimpleStringProperty(title);
+        }
+        return titleProperty;
     }
 
     public LocalDate getStartDate() {
@@ -55,6 +77,16 @@ public class Todo implements Serializable {
 
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
+        if (startDateProperty != null) {
+            startDateProperty.set(startDate);
+        }
+    }
+
+    public ObjectProperty<LocalDate> startDateProperty() {
+        if (startDateProperty == null) {
+            startDateProperty = new SimpleObjectProperty<>(startDate);
+        }
+        return startDateProperty;
     }
 
     public LocalDate getEndDate() {
@@ -63,14 +95,34 @@ public class Todo implements Serializable {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+        if (endDateProperty != null) {
+            endDateProperty.set(endDate);
+        }
+    }
+
+    public ObjectProperty<LocalDate> endDateProperty() {
+        if (endDateProperty == null) {
+            endDateProperty = new SimpleObjectProperty<>(endDate);
+        }
+        return endDateProperty;
     }
 
     public Set<String> getTags() {
-        return tags;
+        return new HashSet<>(tags);
     }
 
     public void setTags(Set<String> tags) {
-        this.tags = tags;
+        this.tags = new HashSet<>(tags);
+        if (tagsProperty != null) {
+            tagsProperty.set(FXCollections.observableSet(this.tags));
+        }
+    }
+
+    public SetProperty<String> tagsProperty() {
+        if (tagsProperty == null) {
+            tagsProperty = new SimpleSetProperty<>(FXCollections.observableSet(tags));
+        }
+        return tagsProperty;
     }
 
     public boolean isCompleted() {
@@ -79,6 +131,24 @@ public class Todo implements Serializable {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+        if (completedProperty != null) {
+            completedProperty.set(completed);
+        }
+    }
+
+    public BooleanProperty completedProperty() {
+        if (completedProperty == null) {
+            completedProperty = new SimpleBooleanProperty(completed);
+        }
+        return completedProperty;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
     }
 
     @Override

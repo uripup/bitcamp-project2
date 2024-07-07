@@ -3,8 +3,13 @@ package bitcamp.project2;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.layout.VBox;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.layout.VBox;
+
 import bitcamp.project2.vo.Todo;
 import bitcamp.project2.command.TodoListCommand;
 
@@ -16,11 +21,21 @@ import java.util.Set;
 public class TodoListController {
 
     @FXML
-    private ListView<Todo> todoListView;
+    private TableView<Todo> todoTableView;
     @FXML
     private ComboBox<String> filterComboBox;
     @FXML
     private TextField searchTextField;
+    @FXML
+    private TableColumn<Todo, Boolean> completedColumn;
+    @FXML
+    private TableColumn<Todo, String> titleColumn;
+    @FXML
+    private TableColumn<Todo, LocalDate> startDateColumn;
+    @FXML
+    private TableColumn<Todo, LocalDate> endDateColumn;
+    @FXML
+    private TableColumn<Todo, String> tagsColumn;
 
     private TodoListCommand todoListCommand;
     private ObservableList<Todo> todoObservableList;
@@ -28,18 +43,74 @@ public class TodoListController {
     public void initialize() {
         todoListCommand = new TodoListCommand();
         todoObservableList = FXCollections.observableArrayList(todoListCommand.getTodos());
-        todoListView.setItems(todoObservableList);
+        todoTableView.setItems(todoObservableList);
+
+        // 다중 선택 모드 설정
+        todoTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         filterComboBox.getItems().addAll("모두", "완료", "미완료");
         filterComboBox.setValue("모두");
         filterComboBox.setOnAction(event -> filterTodos());
 
-        todoListView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                showTodoDetails(todoListView.getSelectionModel().getSelectedItem());
+        completedColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
+        completedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(completedColumn));
+        completedColumn.setOnEditCommit(event -> {
+            Todo todo = event.getRowValue();
+            todo.setCompleted(event.getNewValue());
+            todoListCommand.saveTodosToFile();
+            filterTodos();
+            todoTableView.refresh();
+        });
+
+        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+        titleColumn.setCellFactory(column -> new TableCell<Todo, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    Todo todo = getTableView().getItems().get(getIndex());
+                    if (todo.isCompleted()) {
+                        setStyle("-fx-strikethrough: true;");
+                    } else {
+                        setStyle("-fx-strikethrough: false;");
+                    }
+                }
             }
         });
+
+        startDateColumn.setCellValueFactory(new PropertyValueFactory<>("startDate"));
+        endDateColumn.setCellValueFactory(new PropertyValueFactory<>("endDate"));
+        tagsColumn.setCellValueFactory(cellData -> {
+            String tags = String.join(", ", cellData.getValue().getTags());
+            return new SimpleStringProperty(tags);
+        });
+
+        todoTableView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                showTodoDetails(todoTableView.getSelectionModel().getSelectedItem());
+            }
+        });
+
+        todoTableView.setEditable(true);
+
+        // 선택된 항목들을 처리하는 리스너 추가
+        todoTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                handleMultipleSelection();
+            }
+        });
+
         refreshTodoList();
+    }
+
+    private void handleMultipleSelection() {
+        ObservableList<Todo> selectedItems = todoTableView.getSelectionModel().getSelectedItems();
+        System.out.println("선택된 항목 수: " + selectedItems.size());
+        // 여기에 선택된 항목들에 대한 추가적인 처리 로직을 구현할 수 있습니다.
     }
 
     @FXML
@@ -83,20 +154,11 @@ public class TodoListController {
         });
     }
 
-        @FXML
-    private void completeTodo() {
-            Todo selectedTodo = todoListView.getSelectionModel().getSelectedItem();
-            if (selectedTodo != null) {
-                selectedTodo.setCompleted(!selectedTodo.isCompleted());
-                refreshTodoList();
-                todoListCommand.saveTodosToFile();
-        }
-    }
-
     @FXML
     private void updateTodo() {
-        Todo selectedTodo = todoListView.getSelectionModel().getSelectedItem();
-        if (selectedTodo != null) {
+        ObservableList<Todo> selectedItems = todoTableView.getSelectionModel().getSelectedItems();
+        if (!selectedItems.isEmpty()) {
+            Todo selectedTodo = selectedItems.get(0);  // 첫 번째 선택된 항목만 수정
             Dialog<Todo> dialog = new Dialog<>();
             dialog.setTitle("Todo 수정");
 
@@ -139,9 +201,9 @@ public class TodoListController {
 
     @FXML
     private void deleteTodo() {
-        Todo selectedTodo = todoListView.getSelectionModel().getSelectedItem();
-        if (selectedTodo != null) {
-            todoListCommand.getTodos().remove(selectedTodo);
+        ObservableList<Todo> selectedItems = todoTableView.getSelectionModel().getSelectedItems();
+        if (!selectedItems.isEmpty()) {
+            todoListCommand.getTodos().removeAll(selectedItems);
             refreshTodoList();
             todoListCommand.saveTodosToFile();
         }

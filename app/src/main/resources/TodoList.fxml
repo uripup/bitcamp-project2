@@ -3,10 +3,11 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableColumn?>
 
 <VBox spacing="10" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="bitcamp.project2.TodoListController">
     <padding>
@@ -14,11 +15,18 @@
     </padding>
     <HBox spacing="10">
         <Button onAction="#addTodo" style="-fx-background-color: #0f52ba; -fx-border-color: #090e19; -fx-border-width: 1px; -fx-text-fill: white;" text="추가" />
-        <Button onAction="#completeTodo" style="-fx-background-color: #0f52ba; -fx-border-color: #090e19; -fx-border-width: 1px; -fx-text-fill: white;" text="완료/미완료 체크" />
         <Button onAction="#updateTodo" style="-fx-background-color: #0f52ba; -fx-border-color: #090e19; -fx-border-width: 1px; -fx-text-fill: white;" text="수정" />
         <Button onAction="#deleteTodo" style="-fx-background-color: #0f52ba; -fx-border-color: #090e19; -fx-border-width: 1px; -fx-text-fill: white;" text="삭제" />
     </HBox>
-    <ListView fx:id="todoListView" VBox.vgrow="ALWAYS" />
+    <TableView fx:id="todoTableView" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="completedColumn" prefWidth="50" />
+            <TableColumn fx:id="titleColumn" prefWidth="200" text="제목" />
+            <TableColumn fx:id="startDateColumn" prefWidth="100" text="시작일" />
+            <TableColumn fx:id="endDateColumn" prefWidth="100" text="마감일" />
+            <TableColumn fx:id="tagsColumn" prefWidth="150" text="태그" />
+        </columns>
+    </TableView>
     <HBox spacing="10">
         <ComboBox fx:id="filterComboBox" promptText="필터" />
         <TextField fx:id="searchTextField" promptText="검색" />

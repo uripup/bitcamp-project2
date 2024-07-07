@@ -39,4 +39,12 @@ public class TodoListCommand {
             todos = new ArrayList<>();
         }
     }
+
+    public void toggleTodoCompleted(int todoIndex) {
+        if (todoIndex >= 0 && todoIndex < todos.size()) {
+            Todo todo = todos.get(todoIndex);
+            todo.setCompleted(!todo.isCompleted());
+            saveTodosToFile();
+        }
+    }
 }
