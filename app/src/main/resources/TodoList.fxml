@@ -20,7 +20,7 @@
     </HBox>
     <TableView fx:id="todoTableView" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="completedColumn" prefWidth="50" />
+            <TableColumn fx:id="completedColumn" prefWidth="50" text ="상태"/>
             <TableColumn fx:id="titleColumn" prefWidth="200" text="제목" />
             <TableColumn fx:id="startDateColumn" prefWidth="100" text="시작일" />
             <TableColumn fx:id="endDateColumn" prefWidth="100" text="마감일" />

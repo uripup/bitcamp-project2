@@ -87,17 +87,18 @@ public class TodoListController {
             if (event.getClickCount() == 2) {
                 showTodoDetails(todoTableView.getSelectionModel().getSelectedItem());
             } else if (event.getClickCount() == 1 && event.getButton() == MouseButton.PRIMARY) {
-                TablePosition pos = todoTableView.getSelectionModel().getSelectedCells().get(0);
-                if (pos.getColumn() == completedColumn.getTableView().getColumns().indexOf(completedColumn)) {
-                    Todo todo = todoTableView.getItems().get(pos.getRow());
-                    todo.setCompleted(!todo.isCompleted());
-                    todoListCommand.saveTodosToFile();
-                    filterTodos();
-                    todoTableView.refresh();
+                if (!todoTableView.getSelectionModel().isEmpty()) {
+                    TablePosition pos = todoTableView.getSelectionModel().getSelectedCells().get(0);
+                    if (pos != null && pos.getColumn() == completedColumn.getTableView().getColumns().indexOf(completedColumn)) {
+                        Todo todo = todoTableView.getItems().get(pos.getRow());
+                        todo.setCompleted(!todo.isCompleted());
+                        todoListCommand.saveTodosToFile();
+                        filterTodos();
+                        todoTableView.refresh();
+                    }
                 }
             }
         });
-
         todoTableView.setEditable(true);
         todoTableView.getSelectionModel().setCellSelectionEnabled(true);
 
@@ -237,6 +238,7 @@ public class TodoListController {
         }
         System.out.println("필터링된 Todo 항목 수: " + todoObservableList.size());
     }
+
 
     private void refreshTodoList() {
         todoObservableList.clear();
