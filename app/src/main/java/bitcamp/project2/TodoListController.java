@@ -10,6 +10,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.VBox;
 import javafx.scene.input.MouseButton;
+import java.time.temporal.ChronoUnit;
 
 import bitcamp.project2.vo.Todo;
 import bitcamp.project2.command.TodoListCommand;
@@ -68,9 +69,14 @@ public class TodoListController {
                     setText(item);
                     Todo todo = getTableView().getItems().get(getIndex());
                     if (todo.isCompleted()) {
-                        setStyle("-fx-strikethrough: true;");
+                        setStyle("-fx-text-fill: purple;");
                     } else {
-                        setStyle("-fx-strikethrough: false;");
+                        long daysBetween = ChronoUnit.DAYS.between(todo.getStartDate(), todo.getEndDate());
+                        if (daysBetween <= 1) {
+                            setStyle("-fx-text-fill: red;");
+                        } else {
+                            setStyle("");
+                        }
                     }
                 }
             }
