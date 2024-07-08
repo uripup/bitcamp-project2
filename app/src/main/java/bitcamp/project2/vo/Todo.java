@@ -20,13 +20,12 @@ public class Todo implements Serializable {
     private LocalDate startDate;
     private LocalDate endDate;
     private Set<String> tags;
-    private boolean completed;
+    private transient BooleanProperty completed = new SimpleBooleanProperty(false);
 
     private transient StringProperty titleProperty;
     private transient ObjectProperty<LocalDate> startDateProperty;
     private transient ObjectProperty<LocalDate> endDateProperty;
     private transient SetProperty<String> tagsProperty;
-    private transient BooleanProperty completedProperty;
 
     public Todo(int no, String title, LocalDate startDate, LocalDate endDate, Set<String> tags) {
         this.no = no;
@@ -34,7 +33,7 @@ public class Todo implements Serializable {
         this.startDate = startDate;
         this.endDate = endDate;
         this.tags = new HashSet<>(tags);
-        this.completed = false;
+        this.completed.set(false);
     }
 
     public static int getNextSeqNo() {
@@ -126,34 +125,31 @@ public class Todo implements Serializable {
     }
 
     public boolean isCompleted() {
-        return completed;
+        return completed.get();
     }
 
     public void setCompleted(boolean completed) {
-        this.completed = completed;
-        if (completedProperty != null) {
-            completedProperty.set(completed);
-        }
+        this.completed.set(completed);
+        System.out.println("Todo '" + this.title + "'의 완료 상태가 " + (completed ? "완료" : "미완료") + "로 설정되었습니다.");
     }
 
     public BooleanProperty completedProperty() {
-        if (completedProperty == null) {
-            completedProperty = new SimpleBooleanProperty(completed);
-        }
-        return completedProperty;
+        return completed;
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
+        out.writeBoolean(completed.get());
     }
 
     private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
+        completed = new SimpleBooleanProperty(in.readBoolean());
     }
 
     @Override
     public String toString() {
-        String status = completed ? "[완료]" : "[미완료]";
+        String status = isCompleted() ? "[완료]" : "[미완료]";
         return no + ". " + status + " " + title + " (시작일: " + startDate + ", 마감일: " + endDate + ")";
     }
 }

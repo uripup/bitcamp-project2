@@ -9,6 +9,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.VBox;
+import javafx.scene.input.MouseButton;
 
 import bitcamp.project2.vo.Todo;
 import bitcamp.project2.command.TodoListCommand;
@@ -45,7 +46,6 @@ public class TodoListController {
         todoObservableList = FXCollections.observableArrayList(todoListCommand.getTodos());
         todoTableView.setItems(todoObservableList);
 
-        // 다중 선택 모드 설정
         todoTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         filterComboBox.getItems().addAll("모두", "완료", "미완료");
@@ -53,14 +53,8 @@ public class TodoListController {
         filterComboBox.setOnAction(event -> filterTodos());
 
         completedColumn.setCellValueFactory(cellData -> cellData.getValue().completedProperty());
-        completedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(completedColumn));
-        completedColumn.setOnEditCommit(event -> {
-            Todo todo = event.getRowValue();
-            todo.setCompleted(event.getNewValue());
-            todoListCommand.saveTodosToFile();
-            filterTodos();
-            todoTableView.refresh();
-        });
+        completedColumn.setCellFactory(column -> new CheckBoxTableCell<>());
+        completedColumn.setEditable(true);
 
         titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
         titleColumn.setCellFactory(column -> new TableCell<Todo, String>() {
@@ -92,12 +86,21 @@ public class TodoListController {
         todoTableView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 showTodoDetails(todoTableView.getSelectionModel().getSelectedItem());
+            } else if (event.getClickCount() == 1 && event.getButton() == MouseButton.PRIMARY) {
+                TablePosition pos = todoTableView.getSelectionModel().getSelectedCells().get(0);
+                if (pos.getColumn() == completedColumn.getTableView().getColumns().indexOf(completedColumn)) {
+                    Todo todo = todoTableView.getItems().get(pos.getRow());
+                    todo.setCompleted(!todo.isCompleted());
+                    todoListCommand.saveTodosToFile();
+                    filterTodos();
+                    todoTableView.refresh();
+                }
             }
         });
 
         todoTableView.setEditable(true);
+        todoTableView.getSelectionModel().setCellSelectionEnabled(true);
 
-        // 선택된 항목들을 처리하는 리스너 추가
         todoTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 handleMultipleSelection();
@@ -110,7 +113,6 @@ public class TodoListController {
     private void handleMultipleSelection() {
         ObservableList<Todo> selectedItems = todoTableView.getSelectionModel().getSelectedItems();
         System.out.println("선택된 항목 수: " + selectedItems.size());
-        // 여기에 선택된 항목들에 대한 추가적인 처리 로직을 구현할 수 있습니다.
     }
 
     @FXML
@@ -158,7 +160,7 @@ public class TodoListController {
     private void updateTodo() {
         ObservableList<Todo> selectedItems = todoTableView.getSelectionModel().getSelectedItems();
         if (!selectedItems.isEmpty()) {
-            Todo selectedTodo = selectedItems.get(0);  // 첫 번째 선택된 항목만 수정
+            Todo selectedTodo = selectedItems.get(0);
             Dialog<Todo> dialog = new Dialog<>();
             dialog.setTitle("Todo 수정");
 
@@ -223,14 +225,17 @@ public class TodoListController {
 
     private void filterTodos() {
         String filter = filterComboBox.getValue();
+        System.out.println("Todo 목록 필터링 중. 현재 필터: " + filter);
         todoObservableList.clear();
         for (Todo todo : todoListCommand.getTodos()) {
             if (filter.equals("모두") ||
                     (filter.equals("완료") && todo.isCompleted()) ||
                     (filter.equals("미완료") && !todo.isCompleted())) {
                 todoObservableList.add(todo);
+                System.out.println("필터링된 목록에 추가됨: " + todo.getTitle() + ", 완료 여부: " + (todo.isCompleted() ? "완료" : "미완료"));
             }
         }
+        System.out.println("필터링된 Todo 항목 수: " + todoObservableList.size());
     }
 
     private void refreshTodoList() {
